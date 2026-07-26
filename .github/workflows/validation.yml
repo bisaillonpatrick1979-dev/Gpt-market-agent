@@ -1,10 +1,12 @@
-name: Diagnostic final des dépendances
+name: Validation de la phase 0
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
@@ -12,15 +14,13 @@ env:
   APP_URL: http://localhost:3000
 
 jobs:
-  diagnostiquer:
-    name: Capturer l’audit après mises à jour
+  valider:
+    name: Sécurité, lint, tests, TypeScript et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Récupérer la branche de travail
+      - name: Récupérer le dépôt
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: Installer Node.js
         uses: actions/setup-node@v4
@@ -28,19 +28,20 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Régénérer le verrouillage corrigé
-        run: npm install --no-audit --no-fund
+      - name: Installer les dépendances verrouillées
+        run: npm ci --no-audit --no-fund
 
-      - name: Générer l’audit complet
-        run: npm audit --json > audit-complet.json || true
+      - name: Auditer les dépendances de production
+        run: npm audit --omit=dev --audit-level=high
 
-      - name: Enregistrer le diagnostic et le verrouillage
-        run: |
-          rm -f lint-result.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A package-lock.json audit-complet.json lint-result.txt
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: actualiser le diagnostic final temporaire"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
+      - name: Vérifier le code avec ESLint
+        run: npm run lint
+
+      - name: Exécuter les tests
+        run: npm run test
+
+      - name: Vérifier TypeScript
+        run: npm run typecheck
+
+      - name: Construire l’application
+        run: npm run build
