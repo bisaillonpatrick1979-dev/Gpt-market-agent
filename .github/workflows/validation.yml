@@ -1,4 +1,4 @@
-name: Diagnostic complet des dépendances
+name: Correction complète des dépendances
 
 on:
   pull_request:
@@ -12,8 +12,8 @@ env:
   APP_URL: http://localhost:3000
 
 jobs:
-  diagnostiquer:
-    name: Audit complet des dépendances
+  corriger:
+    name: Audit complet, lint, tests et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -28,18 +28,31 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Installer les dépendances verrouillées
-        run: npm ci --no-audit --no-fund
+      - name: Régénérer le verrouillage corrigé
+        run: npm install --no-audit --no-fund
 
-      - name: Générer l’audit complet
-        run: npm audit --json > audit-complet.json || true
+      - name: Auditer toutes les dépendances
+        run: npm audit --audit-level=high
 
-      - name: Enregistrer le diagnostic temporaire
+      - name: Vérifier le code avec ESLint
+        run: npm run lint
+
+      - name: Exécuter les tests
+        run: npm run test
+
+      - name: Vérifier TypeScript
+        run: npm run typecheck
+
+      - name: Construire l’application
+        run: npm run build
+
+      - name: Enregistrer le verrouillage et retirer le diagnostic
         run: |
-          if [ -n "$(git status --porcelain audit-complet.json)" ]; then
+          rm -f audit-complet.json
+          if [ -n "$(git status --porcelain package-lock.json audit-complet.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add audit-complet.json
-            git commit -m "chore: enregistrer l’audit complet temporaire"
+            git add -A package-lock.json audit-complet.json
+            git commit -m "fix: verrouiller toutes les dépendances corrigées"
             git push origin HEAD:${{ github.head_ref }}
           fi
