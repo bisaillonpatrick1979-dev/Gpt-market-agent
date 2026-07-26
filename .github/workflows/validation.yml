@@ -1,0 +1,40 @@
+name: Validation de la phase 0
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_validation_locale
+  APP_URL: http://localhost:3000
+
+jobs:
+  valider:
+    name: Tests, TypeScript et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Installer les dépendances
+        run: npm install --no-audit --no-fund
+
+      - name: Exécuter les tests
+        run: npm run test
+
+      - name: Vérifier TypeScript
+        run: npm run typecheck
+
+      - name: Construire l’application
+        run: npm run build
