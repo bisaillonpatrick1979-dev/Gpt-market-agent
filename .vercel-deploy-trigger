@@ -1,0 +1,4 @@
+Déclenchement manuel du déploiement Vercel.
+Branche: main
+Corrections incluses: authentification Supabase par lien magique et message de limite d’envoi.
+Date: 2026-07-26
