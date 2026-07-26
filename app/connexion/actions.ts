@@ -4,11 +4,19 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-function isEmailRateLimit(error: { status?: number; code?: string; message?: string }) {
-  const message = error.message?.toLowerCase() ?? "";
+function isEmailRateLimit(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+
+  const details = error as {
+    status?: unknown;
+    code?: unknown;
+    message?: unknown;
+  };
+  const message = typeof details.message === "string" ? details.message.toLowerCase() : "";
+
   return (
-    error.status === 429 ||
-    error.code === "over_email_send_rate_limit" ||
+    details.status === 429 ||
+    details.code === "over_email_send_rate_limit" ||
     message.includes("rate limit") ||
     message.includes("only request this after")
   );
