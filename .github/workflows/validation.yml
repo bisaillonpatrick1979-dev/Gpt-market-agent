@@ -1,10 +1,12 @@
 name: Validation de la phase 0
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
@@ -17,18 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Récupérer la branche de travail
+      - name: Récupérer le dépôt
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: Installer Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
-      - name: Installer et verrouiller les dépendances
-        run: npm install --no-audit --no-fund
+      - name: Installer les dépendances verrouillées
+        run: npm ci --no-audit --no-fund
 
       - name: Exécuter les tests
         run: npm run test
@@ -38,13 +39,3 @@ jobs:
 
       - name: Construire l’application
         run: npm run build
-
-      - name: Commiter le verrouillage généré
-        run: |
-          if [ -n "$(git status --porcelain package-lock.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "chore: verrouiller les dépendances"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
