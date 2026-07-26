@@ -1,4 +1,4 @@
-name: Diagnostic ESLint après correction
+name: Validation complète de la phase 0
 
 on:
   pull_request:
@@ -12,8 +12,8 @@ env:
   APP_URL: http://localhost:3000
 
 jobs:
-  diagnostiquer:
-    name: Capturer l’erreur ESLint
+  valider:
+    name: Audit complet, lint, tests et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -31,19 +31,28 @@ jobs:
       - name: Régénérer le verrouillage corrigé
         run: npm install --no-audit --no-fund
 
-      - name: Vérifier l’audit complet
+      - name: Auditer toutes les dépendances
         run: npm audit --audit-level=high
 
-      - name: Capturer le diagnostic ESLint
-        run: npm run lint > lint-result.txt 2>&1 || true
+      - name: Vérifier le code avec ESLint
+        run: npm run lint
 
-      - name: Enregistrer le diagnostic temporaire
+      - name: Exécuter les tests
+        run: npm run test
+
+      - name: Vérifier TypeScript
+        run: npm run typecheck
+
+      - name: Construire l’application
+        run: npm run build
+
+      - name: Enregistrer le verrouillage et retirer les diagnostics
         run: |
-          rm -f audit-complet.json
+          rm -f audit-complet.json lint-result.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A package-lock.json audit-complet.json lint-result.txt
           if ! git diff --cached --quiet; then
-            git commit -m "chore: enregistrer le diagnostic ESLint temporaire"
+            git commit -m "fix: verrouiller les dépendances corrigées"
             git push origin HEAD:${{ github.head_ref }}
           fi
