@@ -8,6 +8,7 @@
 4. **Trading réel** : bloqué deux fois — constante TypeScript immuable et contrainte PostgreSQL empêchant `REEL_VALIDATION`.
 5. **Mémoire** : embeddings normalisés à 1 536 dimensions pour permettre un index HNSW commun aux fournisseurs. Un adaptateur devra convertir toute sortie vers cette dimension.
 6. **Audit** : le journal refuse toute modification ou suppression, y compris par erreur applicative.
+7. **Dépendances** : versions exactes et `package-lock.json` généré après tests, TypeScript et build réussis dans GitHub Actions.
 
 ## Trois choix qui changent le plus le résultat
 
@@ -19,7 +20,6 @@
 
 - Le chiffrement effectif des clés fournisseurs est prévu en Phase 1, car aucune clé externe n’est utilisée en Phase 0.
 - Les tables sont créées maintenant, mais les écritures métier restent réservées au serveur dans les phases correspondantes.
-- Le verrouillage des dépendances doit être régénéré dans un environnement ayant accès au registre npm avant toute modification de versions.
 
 ## Pièges API suivis
 
