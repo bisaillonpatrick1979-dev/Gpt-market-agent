@@ -15,7 +15,7 @@ env:
 
 jobs:
   valider:
-    name: Tests, TypeScript, sécurité et build
+    name: Sécurité, lint, tests, TypeScript et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -33,6 +33,9 @@ jobs:
 
       - name: Auditer les dépendances de production
         run: npm audit --omit=dev --audit-level=high
+
+      - name: Vérifier le code avec ESLint
+        run: npm run lint
 
       - name: Exécuter les tests
         run: npm run test

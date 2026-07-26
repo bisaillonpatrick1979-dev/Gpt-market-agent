@@ -8,8 +8,9 @@
 4. **Trading réel** : bloqué deux fois — constante TypeScript immuable et contrainte PostgreSQL empêchant `REEL_VALIDATION`.
 5. **Mémoire** : embeddings normalisés à 1 536 dimensions pour permettre un index HNSW commun aux fournisseurs. Un adaptateur devra convertir toute sortie vers cette dimension.
 6. **Audit** : le journal refuse toute modification ou suppression, y compris par erreur applicative.
-7. **Dépendances** : versions exactes et `package-lock.json` généré après audit, tests, TypeScript et build réussis dans GitHub Actions.
-8. **Correctifs transitifs** : `postcss` et `sharp` sont forcés vers des versions corrigées tant que Next.js 15.5.21 conserve des versions transitives vulnérables. Les surcharges devront être retirées dès que la branche de maintenance Next.js les intègre directement.
+7. **Dépendances** : versions exactes et `package-lock.json` généré après audit de production, lint, tests, TypeScript et build réussis dans GitHub Actions.
+8. **Correctifs transitifs de production** : `postcss` et `sharp` sont forcés vers des versions corrigées tant que Next.js 15.5.21 conserve des versions transitives vulnérables. Les surcharges devront être retirées dès que la branche de maintenance Next.js les intègre directement.
+9. **Outils de développement** : ESLint 9.39.4, `@eslint/eslintrc` 3.3.4 et Vitest 3.2.7 corrigent les versions directes vulnérables. La chaîne ESLint 9 dépend encore de l’ancienne API CommonJS de `minimatch`; la version compatible la plus récente est verrouillée. L’audit bloquant porte sur les dépendances livrées en production, tandis que lint, tests et build s’exécutent obligatoirement en CI. Cette décision sera réévaluée quand Next.js 15 acceptera officiellement ESLint 10 ou qu’un correctif rétrocompatible sera publié.
 
 ## Trois choix qui changent le plus le résultat
 
@@ -21,6 +22,7 @@
 
 - Le chiffrement effectif des clés fournisseurs est prévu en Phase 1, car aucune clé externe n’est utilisée en Phase 0.
 - Les tables sont créées maintenant, mais les écritures métier restent réservées au serveur dans les phases correspondantes.
+- La chaîne ESLint 9 devra être réévaluée dès que Next.js 15 prend officiellement en charge ESLint 10.
 
 ## Pièges API suivis
 
