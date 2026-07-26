@@ -19,6 +19,9 @@ export async function sendMagicLink(formData: FormData) {
   });
 
   if (error) {
+    if (error.status === 429) {
+      redirect("/connexion?erreur=limite");
+    }
     redirect("/connexion?erreur=envoi");
   }
 

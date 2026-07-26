@@ -4,8 +4,17 @@ type LoginPageProps = {
   searchParams: Promise<{ envoye?: string; erreur?: string }>;
 };
 
+const errorMessages: Record<string, string> = {
+  courriel: "L’adresse courriel n’est pas valide.",
+  limite: "Trop de demandes rapprochées. Attendez environ une minute avant de demander un autre lien.",
+  lien: "Le lien a déjà été utilisé, a été ouvert automatiquement par votre service de courriel ou a expiré. Demandez un nouveau lien et ouvrez seulement le plus récent.",
+  envoi: "Impossible d’envoyer le lien pour le moment. Réessayez dans une minute."
+};
+
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const errorMessage = params.erreur ? errorMessages[params.erreur] ?? errorMessages.envoi : null;
+
   return (
     <main className="min-h-screen grid place-items-center p-5">
       <section className="panel w-full max-w-md p-6 sm:p-8">
@@ -16,12 +25,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
         {params.envoye === "1" && (
           <p className="mt-5 rounded-lg border border-[var(--bordure)] bg-[var(--panneau-2)] p-4 text-sm">
-            Le lien de connexion a été envoyé. Vérifiez votre boîte de réception.
+            Le lien de connexion a été envoyé. Utilisez uniquement le courriel le plus récent.
           </p>
         )}
-        {params.erreur && (
+        {errorMessage && (
           <p className="mt-5 rounded-lg border border-[var(--attention)] p-4 text-sm text-[var(--attention)]">
-            Impossible d’envoyer le lien. Vérifiez le courriel et réessayez.
+            {errorMessage}
           </p>
         )}
         <form action={sendMagicLink} className="mt-7 space-y-4">
