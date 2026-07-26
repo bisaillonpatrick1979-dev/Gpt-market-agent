@@ -15,7 +15,7 @@ env:
 
 jobs:
   valider:
-    name: Tests, TypeScript et build
+    name: Tests, TypeScript, sécurité et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -30,6 +30,9 @@ jobs:
 
       - name: Installer les dépendances verrouillées
         run: npm ci --no-audit --no-fund
+
+      - name: Auditer les dépendances de production
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Exécuter les tests
         run: npm run test
