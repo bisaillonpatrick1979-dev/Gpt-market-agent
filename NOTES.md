@@ -8,7 +8,8 @@
 4. **Trading réel** : bloqué deux fois — constante TypeScript immuable et contrainte PostgreSQL empêchant `REEL_VALIDATION`.
 5. **Mémoire** : embeddings normalisés à 1 536 dimensions pour permettre un index HNSW commun aux fournisseurs. Un adaptateur devra convertir toute sortie vers cette dimension.
 6. **Audit** : le journal refuse toute modification ou suppression, y compris par erreur applicative.
-7. **Dépendances** : versions exactes et `package-lock.json` généré après tests, TypeScript et build réussis dans GitHub Actions.
+7. **Dépendances** : versions exactes et `package-lock.json` généré après audit, tests, TypeScript et build réussis dans GitHub Actions.
+8. **Correctifs transitifs** : `postcss` et `sharp` sont forcés vers des versions corrigées tant que Next.js 15.5.21 conserve des versions transitives vulnérables. Les surcharges devront être retirées dès que la branche de maintenance Next.js les intègre directement.
 
 ## Trois choix qui changent le plus le résultat
 
