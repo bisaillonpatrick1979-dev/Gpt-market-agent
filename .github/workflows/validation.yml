@@ -1,10 +1,12 @@
-name: Correction de sécurité de la phase 0
+name: Validation de la phase 0
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
@@ -12,15 +14,13 @@ env:
   APP_URL: http://localhost:3000
 
 jobs:
-  corriger:
-    name: Verrouillage, audit, tests et build
+  valider:
+    name: Tests, TypeScript, sécurité et build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Récupérer la branche de travail
+      - name: Récupérer le dépôt
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: Installer Node.js
         uses: actions/setup-node@v4
@@ -28,8 +28,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Régénérer le verrouillage corrigé
-        run: npm install --no-audit --no-fund
+      - name: Installer les dépendances verrouillées
+        run: npm ci --no-audit --no-fund
 
       - name: Auditer les dépendances de production
         run: npm audit --omit=dev --audit-level=high
@@ -42,14 +42,3 @@ jobs:
 
       - name: Construire l’application
         run: npm run build
-
-      - name: Enregistrer le verrouillage et retirer le diagnostic
-        run: |
-          rm -f audit-result.json
-          if [ -n "$(git status --porcelain package-lock.json audit-result.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -A package-lock.json audit-result.json
-            git commit -m "fix: verrouiller les dépendances corrigées"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
