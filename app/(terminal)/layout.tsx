@@ -1,14 +1,6 @@
-import { redirect } from "next/navigation";
-import { KillSwitch } from "@/components/kill-switch";
 import { Navigation } from "@/components/navigation";
-import { createClient } from "@/lib/supabase/server";
 
-export default async function TerminalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub;
-  if (!userId) redirect("/connexion");
-
+export default function TerminalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-[var(--bordure)] bg-[color:rgba(8,11,16,0.94)] backdrop-blur">
@@ -17,7 +9,9 @@ export default async function TerminalLayout({ children }: Readonly<{ children: 
             <p className="mono text-sm font-bold">GPT MARKET AGENT</p>
             <p className="text-xs text-[var(--texte-faible)]">PAPIER_AUTONOME · Phase 0</p>
           </div>
-          <KillSwitch />
+          <p className="rounded-lg border border-[var(--bordure)] px-3 py-2 text-xs text-[var(--texte-faible)]">
+            Accès direct · utilisateur unique
+          </p>
         </div>
       </header>
       <div className="mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)]">
